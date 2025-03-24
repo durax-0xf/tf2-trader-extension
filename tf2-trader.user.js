@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         BPTF Multi-tool
-// @namespace    http://tampermonkey.net/
+// @namespace    https://steamcommunity.com/id/evangelions/
 // @version      4
 // @description  QOL Features for TF2 trading!
 // @author       football.2014
@@ -13,7 +13,7 @@
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=backpack.tf
 // @run-at       document-end
 // @grant        none
-// @downloadURL
+// @downloadURL  https://github.com/durax-0xf/tf2-trader-extension/raw/main/tf2-trader.user.js
 // ==/UserScript==
 
 function format2STN(name, effect, quality) {
