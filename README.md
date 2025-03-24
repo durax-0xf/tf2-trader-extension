@@ -37,6 +37,6 @@ Your TF2 Trader script should now be installed and running.
 
 ---
 
-**_Support this project by sending me a trade on Steam!_**
+**_Support this project by sending me a donation on Steam!_**
 
 **_[Send a trade](https://steamcommunity.com/tradeoffer/new/?partner=854218963&token=Eziro5LQ)_**
