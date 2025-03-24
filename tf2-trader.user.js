@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @version      4
 // @description  QOL Features for TF2 trading!
-// @author       durax
+// @author       football.2014
 // @match        https://stntrading.eu/item/tf2/Unusual*
 // @match        https://backpack.tf/*
 // @match        https://steamcommunity.com/id/*/inventory/
@@ -13,6 +13,7 @@
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=backpack.tf
 // @run-at       document-end
 // @grant        none
+// @downloadURL
 // ==/UserScript==
 
 function format2STN(name, effect, quality) {
