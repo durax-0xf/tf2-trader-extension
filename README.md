@@ -29,6 +29,7 @@ Your TF2 Trader script should now be installed and running.
   - Can be done by changing the effectID on stats/Unusual/{name}/Tradable/Craftable/{effectID}
 - Add buttons to open the bptf page from steam
 - Add buttons to the popover pages to open on stn
+- Actual error handling
 ---
 
 ### Author: [durax](https://github.com/durax-0xf)
