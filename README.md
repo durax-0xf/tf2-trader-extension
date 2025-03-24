@@ -1,6 +1,6 @@
 # TF2 Trader Script
 
-## Features of `main.js`
+## Features of `tf2-trader.user.js`
 - **Adds buttons to open items on various trading platforms**:
   - **STN Trading**: Opens the item on STNTrading from Backpack.tf as the source.
   - **Marketplace.tf**: Opens the item on Marketplace.tf from Backpack.tf as the source.
