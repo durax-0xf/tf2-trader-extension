@@ -31,6 +31,8 @@ function createButton4STN() {
     //can be used to get the quality of the item on bptf
     //defcat
     //can sometimes be used to get the quality of the item on stn
+    //
+    //there could be a way to create pages for not only unusuals but any items (including skins)
     function getBPTFLink(quality) {
         const effect_and_name = itemData.itemName.replace("Unusual ","");
         let target;
