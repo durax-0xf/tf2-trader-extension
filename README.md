@@ -23,3 +23,19 @@
 3. Confirm the installation.
 
 Your TF2 Trader script should now be installed and running.
+
+# Future plans:
+- Create buttons to check the next and previous effect on backpack.tf
+  - Can be done by changing the effectID on stats/Unusual/{name}/Tradable/Craftable/{effectID}
+- Add buttons to open the bptf page from steam
+- Add buttons to the popover pages to open on stn
+---
+
+### Author: [durax](https://github.com/durax-0xf)
+- Steam profile: [football.2014](https://steamcommunity.com/id/evangelions/)
+
+---
+
+**_Support this project by sending me a trade on Steam!_**
+
+**_[Send a trade](https://steamcommunity.com/tradeoffer/new/?partner=854218963&token=Eziro5LQ)_**
