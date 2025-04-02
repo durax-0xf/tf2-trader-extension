@@ -25,8 +25,6 @@
 Your TF2 Trader script should now be installed and running.
 
 # Future plans:
-- Create buttons to check the next and previous effect on backpack.tf
-  - Can be done by changing the effectID on stats/Unusual/{name}/Tradable/Craftable/{effectID}
 - Add buttons to open the bptf page from steam
 - Add buttons to the popover pages to open on stn
 - Actual error handling
