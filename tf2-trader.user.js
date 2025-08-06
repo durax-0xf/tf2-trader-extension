@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BPTF Multi-tool
 // @namespace    https://steamcommunity.com/id/evangelions/
-// @version      4
+// @version      4.0.1
 // @description  QOL Features for TF2 trading!
 // @author       football.2014
 // @match        https://stntrading.eu/item/tf2/Unusual*
@@ -167,10 +167,30 @@ function createButton4BPTF() {
         priceBoxes.appendChild(priceBox);
     }
 
+    function displayButtonsPrevNext(){
+        let root = document.querySelector("#page-content > div.row > div > div.stats-breadcrumbs");
+        let og = root.querySelector("a:nth-child(2)");
+        if (og) {
+            let ogEffID = Number(window.location.href.split("/")[8]);
+            let hrefBase = window.location.href.split("/");
+
+            const createNavLink = (text, offset) => {
+                let link = og.cloneNode();
+                hrefBase[8] = ogEffID + offset;
+                link.href = hrefBase.join("/");
+                link.innerText = text;
+                return link;
+            };
+
+            root.appendChild(createNavLink("🠜 Previous Effect", -1));
+            root.appendChild(createNavLink("Next Effect 🠞", 1));
+        }
+    }
+
     displayButtonWiki();
 
 
-    //is on bptf stats page
+
     if (/^\/stats\/Unusual\/[^\/]+\/Tradable\/Craftable\/[^\/]+$/.test(window.location.pathname)) {
         displayButtonSTN();
         displayButtonsPrevNext();
