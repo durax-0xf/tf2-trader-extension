@@ -8,6 +8,7 @@
   - **Scrap.tf**: Adds button to open an unusuals on Backpack.tf from the auction page.
 - **Select all items in Scrap.tf inventory**: Adds a button to select all items in your Scrap.tf inventory.
 - **Displays pure key count in Steam inventory**: Shows the total number of pure keys in your Steam inventory.
+- **Next effect and Previous effect buttons**: Quickly check for sister effect prices on Backpack.tf.
 
 ## Installation Instructions
 
