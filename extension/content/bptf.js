@@ -227,7 +227,7 @@ function initGutterToggle() {
   if (!panel) return;
 
   // nth-child(1), nth-child(4), nth-child(6) → zero-based indices 0, 3, 5
-  const gutters = [0, 3, 5].map(i => panel.children[i]).filter(Boolean);
+  const gutters = [0, 3, 5, 7, 9].map(i => panel.children[i]).filter(Boolean);
   if (!gutters.length) return;
 
   const btnStyle = [
@@ -247,6 +247,9 @@ function initGutterToggle() {
       h2.textContent = 'Timeline';
       panel.insertBefore(h2, panel.firstElementChild);
     }
+
+    // Skip toggle for Classifieds section
+    if (h2.textContent.includes('Classifieds')) return;
 
     // Hide gutter by default
     toggleMenu(gutter, false);
