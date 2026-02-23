@@ -14,3 +14,8 @@ function format2BPTF(name, effectId) {
 function format2MPTF(defIndex, effId) {
   return `https://marketplace.tf/items/tf2/${defIndex};5;u${effId}`;
 }
+
+function format2MCO(effect, quality, name) {
+  const formattedUrl = `${effect}-${quality}-${name}`.toLowerCase().replace(/\s+/g, '-');
+  return `https://mannco.store/item/440-${formattedUrl}`;
+}

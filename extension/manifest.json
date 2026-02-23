@@ -36,7 +36,7 @@
     },
     {
       "matches": ["https://stntrading.eu/item/tf2/Unusual*"],
-      "js": ["content/token-bridge.js"],
+      "js": ["content/token-bridge.js", "content/fetch-bridge.js"],
       "run_at": "document_start"
     },
     {

@@ -17,14 +17,29 @@ function getItemEl() {
   );
 }
 
+/**
+ * Returns { name, effectName, effectId, defIndex, quality } for the current BPTF unusual stats page.
+ * All data is read from the item element's data-* attributes injected by backpack.tf itself.
+ */
+function getPageItem() {
+  const itemEl = getItemEl();
+  if (!itemEl) return { name: '', effectName: '', effectId: '', defIndex: '', quality: 5 };
+
+  const name       = itemEl.dataset.base_name   || '';
+  const effectName = itemEl.dataset.effect_name || '';
+  const effectId   = itemEl.getAttribute('data-effect_id')  || '';
+  const defIndex   = itemEl.getAttribute('data-defindex')   || '';
+  const quality    = 5; // unusual stats pages are always quality 5
+
+  return { name, effectName, effectId, defIndex, quality };
+}
+
 // ── STN button ────────────────────────────────────────────────
 
 function displayButtonSTN() {
-  const itemEl = getItemEl();
-  if (!itemEl) return;
+  const { name: itemName, effectName } = getPageItem();
+  if (!itemName) return;
 
-  const itemName   = itemEl.dataset.base_name;
-  const effectName = itemEl.dataset.effect_name;
   const priceBoxes = document.querySelector(
     '#page-content > div.row > div > div.stats-body > div.stats-subheader > div.price-boxes'
   );
@@ -58,11 +73,9 @@ function displayButtonSTN() {
 // ── MPTF button ───────────────────────────────────────────────
 
 function displayButtonMPTF() {
-  const itemEl = getItemEl();
-  if (!itemEl) return;
+  const { defIndex, effectId: effId } = getPageItem();
+  if (!defIndex) return;
 
-  const defIndex = itemEl.getAttribute('data-defindex');
-  const effId    = itemEl.getAttribute('data-effect_id');
   const priceBoxes = document.querySelector(
     '#page-content > div.row > div > div.stats-body > div.stats-subheader > div.price-boxes'
   );
@@ -89,6 +102,38 @@ function displayButtonMPTF() {
   textBox.innerHTML = '<div class="value">MP.TF</div><div class="subtitle">See past sales</div>';
   priceBox.appendChild(textBox);
 
+  priceBoxes.appendChild(priceBox);
+}
+
+// ── Mannco.store button ─────────────────────────────────────
+// Similar to MPTF button but links to Mannco.store instead
+function displayButtonMCO() {
+  const { name, effectName } = getPageItem();
+
+  const priceBoxes = document.querySelector(
+    '#page-content > div.row > div > div.stats-body > div.stats-subheader > div.price-boxes'
+  );
+  if (!priceBoxes) return;
+
+  // Only add if Mannco.store box is absent
+  const already = Array.from(priceBoxes.querySelectorAll('.price-box'))
+    .some(el => el.title === 'Mannco.store');
+  if (already) return;
+  const priceBox = document.createElement('a');
+  priceBox.className = 'price-box';
+  priceBox.setAttribute('data-tip', 'top');
+  priceBox.target = '_blank';
+  priceBox.title  = 'Mannco.store';
+  priceBox.href   = format2MCO(effectName, 'unusual', name);
+
+  const mcoImg = document.createElement('img');
+  mcoImg.src = 'https://external-content.duckduckgo.com/ip3/mannco.store.ico';
+  priceBox.appendChild(mcoImg);
+
+  const textBox = document.createElement('div');
+  textBox.className = 'text';
+  textBox.innerHTML = '<div class="value">MCO</div><div class="subtitle">See on Mannco.store</div>';
+  priceBox.appendChild(textBox);
   priceBoxes.appendChild(priceBox);
 }
 
@@ -171,6 +216,57 @@ function addWikiLink(node) {
   container.appendChild(unuNode);
 }
 
+// ── Hide Guttered Menus ────────────────────────────────────────────────
+
+function toggleMenu(menu, show) {
+menu.style.display = show ? '' : 'none';
+}
+
+function initGutterToggle() {
+  const panel = document.querySelector('#page-content > div.stats-panel > div');
+  if (!panel) return;
+
+  // nth-child(1), nth-child(4), nth-child(6) → zero-based indices 0, 3, 5
+  const gutters = [0, 3, 5].map(i => panel.children[i]).filter(Boolean);
+  if (!gutters.length) return;
+
+  const btnStyle = [
+    'margin-left:10px', 'padding:2px 10px', 'border-radius:4px', 'border:none',
+    'cursor:pointer', 'background:#2a475e', 'color:#c6d4df', 'font-size:12px',
+    'vertical-align:middle', 'font-weight:normal', 'letter-spacing:.3px'
+  ].join(';');
+
+  gutters.forEach(gutter => {
+    // Walk backwards from the gutter to find the nearest preceding h2 sibling
+    let h2 = gutter.previousElementSibling;
+    while (h2 && h2.tagName !== 'H2') h2 = h2.previousElementSibling;
+
+    // First gutter has no heading — inject one before panel.children[0]
+    if (!h2) {
+      h2 = document.createElement('h2');
+      h2.textContent = 'Timeline';
+      panel.insertBefore(h2, panel.firstElementChild);
+    }
+
+    // Hide gutter by default
+    toggleMenu(gutter, false);
+
+    let visible = false;
+
+    const btn = document.createElement('button');
+    btn.textContent  = 'Show';
+    btn.style.cssText = btnStyle;
+
+    btn.addEventListener('click', () => {
+      visible = !visible;
+      toggleMenu(gutter, visible);
+      btn.textContent = visible ? 'Hide' : 'Show';
+    });
+
+    h2.appendChild(btn);
+  });
+}
+
 // ── Entry point ───────────────────────────────────────────────
 
 function init() {
@@ -182,6 +278,8 @@ function init() {
     displayButtonSTN();
     displayButtonMPTF();
     displayButtonsPrevNext();
+    displayButtonMCO();
+    initGutterToggle();
   }
 }
 

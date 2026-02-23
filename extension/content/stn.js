@@ -11,8 +11,13 @@ document.addEventListener('__bptf_token_ready', e => {
   window.__bptfToken = e.detail.token || '';
 }, { once: true });
 
-function getBPTFLink() {
-  // Effect ID from the particle source image — same method as the original userscript.
+/**
+ * getPageItem()
+ * Extracts the current item's data from the STN page.
+ * @returns {{ name: string, effectName: string, effectId: string, quality: number }}
+ */
+function getPageItem() {
+  // Effect ID from the particle source image
   const particleSrc = document.querySelector(
     'body > div.d-flex.flex-column > div.bg-dark > div.m-auto > div > div ' +
     '> div.col-sm-4.col-md-5.col-lg-4.p-3.h-100 > div > picture:nth-child(2) > source'
@@ -21,62 +26,45 @@ function getBPTFLink() {
     ? particleSrc.srcset.split('/').at(-1).replace('@4x.webp', '')
     : '';
 
-  // Primary: use itemData.itemName exposed by STN's own page JS (requires world: MAIN).
-  // This is exactly what the original userscript relied on.
-  if (typeof itemData !== 'undefined' && itemData.itemName) {
-    // itemData.itemName = "Unusual Burning Flames Team Captain"
-    const effectAndName = itemData.itemName.replace('Unusual ', '');
-
-    // Find the effect name from the purple-coloured node ("Unusual Effect: Burning Flames")
-    let effectName = '';
-    const descContainer = document.querySelector(
-      'body > div.d-flex.flex-column > div.bg-dark > div.m-auto > div > div ' +
-      '> div.col-sm-8.col-md-7.col-lg-8 > div.row.g-0 > div:nth-child(1) ' +
-      '> div.row.g-0 > div.col-12 > div'
-    );
-    if (descContainer) {
-      descContainer.childNodes.forEach(node => {
-        if (node.style && node.style.color === 'rgb(134, 80, 172)') {
-          // Original script used .slice(18) to strip "Unusual Effect: " (18 chars)
-          effectName = node.innerText.slice(18).replace('\n', ' ').trim();
-        }
-      });
-    }
-
-    // Strip the effect name to get only the hat name, then pass to BPTF formatter.
-    const itemName = effectName
-      ? effectAndName.replace(effectName, '').trim()
-      : effectAndName.trim();
-
-    return format2BPTF(itemName, effectId);
-  }
-
-  // Fallback: parse from the URL. STN URLs are:
-  // /item/tf2/Unusual%20<EffectName>%20<HatName>
-  // We must strip both "Unusual " and the effect name to isolate the hat name.
-  const rawSegment = window.location.pathname.split('/').pop();
-  const decoded    = decodeURIComponent(rawSegment).replace(/^Unusual\s+/i, '');
-
-  // Try DOM-based effect name extraction as the fallback splitter.
+  // Effect name from the purple-coloured description node
   let effectName = '';
-  const descContainer = document.querySelector(
+  document.querySelectorAll(
     'body > div.d-flex.flex-column > div.bg-dark > div.m-auto > div > div ' +
     '> div.col-sm-8.col-md-7.col-lg-8 > div.row.g-0 > div:nth-child(1) ' +
-    '> div.row.g-0 > div.col-12 > div'
-  );
-  if (descContainer) {
-    descContainer.childNodes.forEach(node => {
-      if (node.style && node.style.color === 'rgb(134, 80, 172)') {
-        effectName = node.innerText.slice(18).replace('\n', ' ').trim();
-      }
-    });
+    '> div.row.g-0 > div.col-12 > div *'
+  ).forEach(node => {
+    if (node.style && node.style.color === 'rgb(134, 80, 172)') {
+      effectName = node.innerText.slice(18).replace('\n', ' ').trim();
+    }
+  });
+
+  // Item name — prefer STN's own itemData JS object (available in world: MAIN)
+  let name = '';
+  if (typeof itemData !== 'undefined' && itemData.itemName) {
+    name = itemData.itemName
+      .replace('Unusual ', '')
+      .replace(effectName, '')
+      .trim();
+  } else {
+    // Fallback: decode from the URL segment
+    const raw = decodeURIComponent(window.location.pathname.split('/').pop());
+    name = raw.replace(/^Unusual\s+/i, '').replace(effectName, '').trim();
   }
 
-  const itemName = effectName
-    ? decoded.replace(effectName, '').trim()
-    : decoded.trim();
+  // Unusuals are always quality 5; kept explicit for future non-unusual support
+  const quality = 5;
 
-  return format2BPTF(itemName, effectId);
+  return { name, effectName, effectId, quality };
+}
+
+/**
+ * getBPTFLink()
+ * Formats the backpack.tf stats URL for the current page item.
+ * @returns {string}
+ */
+function getBPTFLink() {
+  const { name, effectId } = getPageItem();
+  return format2BPTF(name, effectId);
 }
 
 function injectSTNStyles() {
@@ -115,6 +103,23 @@ function injectSTNStyles() {
       color: #fff;
     }
     #bptf-link.bptf-mt-btn img {
+      width: 15px;
+      height: 15px;
+      flex-shrink: 0;
+    }
+
+    /* ── MCO open button ──────────────────────────────────── */
+    #mco-link.bptf-mt-btn {
+      background: #1a6e3c;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(26,110,60,.35);
+    }
+    #mco-link.bptf-mt-btn:hover {
+      background: #155c31;
+      box-shadow: 0 4px 14px rgba(26,110,60,.5);
+      color: #fff;
+    }
+    #mco-link.bptf-mt-btn img {
       width: 15px;
       height: 15px;
       flex-shrink: 0;
@@ -236,34 +241,56 @@ function injectSTNStyles() {
       gap: 8px;
       width: 100%;
       margin-top: 8px;
+      align-items: stretch;
     }
     .bptf-action-card {
-      flex: 1;
+      flex: 1 1 0;
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       align-items: center;
-      gap: 4px;
-      padding: 8px 6px;
+      gap: 8px;
+      padding: 8px 10px;
       background: #1a1a2e;
       border: 1px solid #25253a;
       border-radius: 8px;
-      text-decoration: none;
-      color: #a0b0d0;
-      font-size: 11px;
-      font-weight: 600;
-      transition: background .18s, border-color .18s, color .18s;
-    }
-    .bptf-action-card:hover {
-      background: #202038;
-      border-color: #4466cc;
-      color: #d0e0ff;
+      cursor: default;
+      user-select: none;
+      min-width: 0;
+      overflow: hidden;
     }
     .bptf-action-card i {
-      font-size: 15px;
+      flex-shrink: 0;
+      font-size: 13px;
       color: #5577cc;
-      transition: color .18s;
     }
-    .bptf-action-card:hover i { color: #7799ff; }
+    .bptf-card-text {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-width: 0;
+      flex: 1;
+    }
+    .bptf-card-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: #556;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      white-space: nowrap;
+    }
+    .bptf-card-val {
+      font-size: 11px;
+      font-weight: 700;
+      color: #a0b0d0;
+      line-height: 1.3;
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+    .bptf-card-ref {
+      font-size: 9.5px;
+      color: #778899;
+      font-weight: 600;
+    }
 
     /* ── Buy block extras ───────────────────────────────────────── */
     .bptf-buy-stock {
@@ -329,6 +356,72 @@ function injectSTNStyles() {
   document.head.appendChild(style);
 }
 
+// ── BPTF Snapshot fetch ───────────────────────────────────────────────────────
+
+/**
+ * fetchBPTFSnapshot(sku)
+ * Routes through fetch-bridge.js (isolated world) to avoid CORS/chrome-API
+ * restrictions inside world: MAIN.  Returns { buy, sell } sorted by price,
+ * or null on failure.
+ * @param {string} sku  e.g. "Molten Mallard Magistrate's Mullet"
+ * @returns {Promise<{buy: object[], sell: object[]}|null>}
+ */
+function fetchBPTFSnapshot(sku) {
+  return new Promise(resolve => {
+    const id = `bptf_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+
+    const handler = e => {
+      if (e.detail?.id !== id) return;
+      document.removeEventListener('__bptf_fetch_result', handler);
+
+      if (e.detail.error || !e.detail.data) {
+        console.error('[bptf-multitool] fetchBPTFSnapshot error:', e.detail.error);
+        return resolve(null);
+      }
+
+      // A listing requiring a spelled item has defindex 1005 in its attributes
+      const isSpelled = l => Array.isArray(l.item?.attributes) &&
+        l.item.attributes.some(a => Number(a.defindex) === 1005);
+
+      // USD-only = marketplace.tf bot listing, not a peer-to-peer trade
+      const isUsdOnly = l => !!(l.currencies?.usd && !l.currencies?.keys && !l.currencies?.metal);
+
+      const listings = Array.isArray(e.detail.data.listings) ? e.detail.data.listings : [];
+
+      // Buy: exclude spelled requirements, sort highest price first
+      const buy  = listings
+        .filter(l => l.intent === 'buy' && !isSpelled(l))
+        .sort((a, b) => b.price - a.price);
+
+      // Sell: sort cheapest first
+      const sell = listings
+        .filter(l => l.intent === 'sell')
+        .sort((a, b) => a.price - b.price);
+
+      // Pick the best values, preferring key/ref over USD-only
+      const bestBuy = buy .find(l => !isUsdOnly(l)) ?? buy[0]  ?? null;
+      const topSell = sell.find(l => !isUsdOnly(l)) ?? sell[0] ?? null;
+
+      resolve({ buy, sell, bestBuy, topSell });
+    };
+
+    document.addEventListener('__bptf_fetch_result', handler);
+    document.dispatchEvent(new CustomEvent('__bptf_fetch_request', { detail: { id, sku } }));
+  });
+}
+
+/**
+ * Formats a BPTF currencies object into a readable string.
+ * @param {{ keys?: number, metal?: number }} c
+ */
+function formatCurrencies(c) {
+  const parts = [];
+  if (c.keys)  parts.push(`${c.keys} keys`);
+  if (c.metal) parts.push(`${c.metal} ref`);
+  if (c.usd)   parts.push(`$${c.usd.toFixed(2)}`);
+  return parts.length ? parts.join(', ') : '—';
+}
+
 function styleSellBlock() {
   // Find the sell container by its label text — works whether the button is enabled or disabled
   // (disabled buttons lose their onclick attribute, so we can't query by that)
@@ -385,53 +478,50 @@ function styleSellBlock() {
     sellBtn.innerHTML = 'Sell <i class="far fa-money-bill-alt"></i>';
   }
 
-  // Build links from itemData (available via MAIN world)
-  const effectId = (() => {
-    const src = document.querySelector(
-      'body > div.d-flex.flex-column > div.bg-dark > div.m-auto > div > div ' +
-      '> div.col-sm-4.col-md-5.col-lg-4.p-3.h-100 > div > picture:nth-child(2) > source'
-    );
-    return src ? src.srcset.split('/').at(-1).replace('@4x.webp', '') : '';
-  })();
+  // Build links via shared getPageItem()
+  const { name: baseName, effectId, effectName } = getPageItem();
 
   let sellersHref = 'https://backpack.tf';
   let lowestHref  = 'https://marketplace.tf';
 
-  if (typeof itemData !== 'undefined' && itemData.itemName) {
-    // Strip "Unusual <effectName> " to get bare hat name (e.g. "Anger")
-    let effectName = '';
-    document.querySelectorAll(
-      'body > div.d-flex.flex-column > div.bg-dark > div.m-auto > div > div ' +
-      '> div.col-sm-8.col-md-7.col-lg-8 > div.row.g-0 > div:nth-child(1) ' +
-      '> div.row.g-0 > div.col-12 > div *'
-    ).forEach(node => {
-      if (node.style && node.style.color === 'rgb(134, 80, 172)') {
-        effectName = node.innerText.slice(18).replace('\n', ' ').trim();
-      }
-    });
-    const baseName = itemData.itemName.replace('Unusual ', '').replace(effectName, '').trim();
-    sellersHref = `https://backpack.tf/classifieds?item=${encodeURIComponent(baseName)}&quality=5&tradable=1&craftable=1&australium=-1&effect=${effectId}`;
-    if (itemData.defindex) {
-      lowestHref = format2MPTF(itemData.defindex, effectId);
-    }
+  if (baseName) {
+    sellersHref = `https://backpack.tf/classifieds?item=${encodeURIComponent(baseName)}&quality=5&tradable=1&craftable=1&australium=-1&particle=${effectId}`;
+  }
+  if (typeof itemData !== 'undefined' && itemData.defindex) {
+    lowestHref = format2MPTF(itemData.defindex, effectId);
   }
 
   // Action cards row
   const row = document.createElement('div');
   row.className = 'bptf-action-row';
 
-  const makeCard = (href, icon, label) => {
-    const a = document.createElement('a');
-    a.className = 'bptf-action-card';
-    a.href      = href;
-    a.target    = '_blank';
-    a.innerHTML = `<i class="${icon}"></i><span>${label}</span>`;
-    return a;
+  const makeCard = (icon, label) => {
+    const d = document.createElement('div');
+    d.className = 'bptf-action-card';
+    d.innerHTML = `<i class="${icon}"></i><div class="bptf-card-text"><span class="bptf-card-label">${label}</span><span class="bptf-card-val">…</span></div>`;
+    return d;
   };
 
-  row.appendChild(makeCard(sellersHref, 'fas fa-list',       'Sellers list'));
-  row.appendChild(makeCard(lowestHref,  'fas fa-tag',        'Lowest price'));
+  const buyCountCard = makeCard('fas fa-users', 'Buyers');
+  const bestBuyCard  = makeCard('fas fa-coins', 'Top Buy');
+  row.appendChild(buyCountCard);
+  row.appendChild(bestBuyCard);
   container.appendChild(row);
+
+  // Async: populate from BPTF snapshot
+  if (effectName && baseName) {
+    fetchBPTFSnapshot(`${effectName} ${baseName}`).then(snapshot => {
+      if (!snapshot) return;
+      const count  = snapshot.buy.length;
+      buyCountCard.querySelector('.bptf-card-val').textContent = `${count} Buyer${count !== 1 ? 's' : ''}`;
+      if (snapshot.bestBuy) {
+        const parts = formatCurrencies(snapshot.bestBuy.currencies).split(', ');
+        bestBuyCard.querySelector('.bptf-card-val').innerHTML = parts
+          .map(p => /ref$/i.test(p) ? `<span class="bptf-card-ref">${p}</span>` : p)
+          .join('<br>');
+      }
+    });
+  }
 }
 
 function styleBuyBlock() {
@@ -506,49 +596,47 @@ function styleBuyBlock() {
     if (wrapper && !wrapper.children.length) wrapper.remove();
   }
 
-  // Build action card hrefs
-  const effectId = (() => {
-    const src = document.querySelector(
-      'body > div.d-flex.flex-column > div.bg-dark > div.m-auto > div > div ' +
-      '> div.col-sm-4.col-md-5.col-lg-4.p-3.h-100 > div > picture:nth-child(2) > source'
-    );
-    return src ? src.srcset.split('/').at(-1).replace('@4x.webp', '') : '';
-  })();
+  // Build action card hrefs via shared getPageItem()
+  const { name: baseName, effectId, effectName } = getPageItem();
 
-  let buyersHref   = 'https://backpack.tf';
+  let buyersHref    = 'https://backpack.tf';
   let priceHistHref = 'https://backpack.tf';
 
-  if (typeof itemData !== 'undefined' && itemData.itemName) {
-    let effectName = '';
-    document.querySelectorAll(
-      'body > div.d-flex.flex-column > div.bg-dark > div.m-auto > div > div ' +
-      '> div.col-sm-8.col-md-7.col-lg-8 > div.row.g-0 > div:nth-child(1) ' +
-      '> div.row.g-0 > div.col-12 > div *'
-    ).forEach(node => {
-      if (node.style && node.style.color === 'rgb(134, 80, 172)') {
-        effectName = node.innerText.slice(18).replace('\n', ' ').trim();
-      }
-    });
-    const baseName = itemData.itemName.replace('Unusual ', '').replace(effectName, '').trim();
-    buyersHref    = `https://backpack.tf/classifieds?item=${encodeURIComponent(baseName)}&quality=5&tradable=1&craftable=1&australium=-1&effect=${effectId}&intent=buy`;
+  if (baseName) {
+    buyersHref    = `https://backpack.tf/classifieds?item=${encodeURIComponent(baseName)}&quality=5&tradable=1&craftable=1&australium=-1&particle=${effectId}&intent=buy`;
     priceHistHref = format2BPTF(baseName, effectId);
   }
 
   const row = document.createElement('div');
   row.className = 'bptf-action-row';
 
-  const makeCard = (href, icon, label) => {
-    const a = document.createElement('a');
-    a.className = 'bptf-action-card';
-    a.href      = href;
-    a.target    = '_blank';
-    a.innerHTML = `<i class="${icon}"></i><span>${label}</span>`;
-    return a;
+  const makeCard = (icon, label) => {
+    const d = document.createElement('div');
+    d.className = 'bptf-action-card';
+    d.innerHTML = `<i class="${icon}"></i><div class="bptf-card-text"><span class="bptf-card-label">${label}</span><span class="bptf-card-val">…</span></div>`;
+    return d;
   };
 
-  row.appendChild(makeCard(buyersHref,    'fas fa-shopping-cart', 'Buyers list'));
-  row.appendChild(makeCard(priceHistHref, 'fas fa-chart-line',    'Price history'));
+  const sellCountCard = makeCard('fas fa-store',     'Sellers');
+  const highSellCard  = makeCard('fas fa-chart-bar', 'Cheapest');
+  row.appendChild(sellCountCard);
+  row.appendChild(highSellCard);
   buyContainer.appendChild(row);
+
+  // Async: populate from BPTF snapshot
+  if (effectName && baseName) {
+    fetchBPTFSnapshot(`${effectName} ${baseName}`).then(snapshot => {
+      if (!snapshot) return;
+      const count   = snapshot.sell.length;
+      sellCountCard.querySelector('.bptf-card-val').textContent = `${count} Seller${count !== 1 ? 's' : ''}`;
+      if (snapshot.topSell) {
+        const parts = formatCurrencies(snapshot.topSell.currencies).split(', ');
+        highSellCard.querySelector('.bptf-card-val').innerHTML = parts
+          .map(p => /ref$/i.test(p) ? `<span class="bptf-card-ref">${p}</span>` : p)
+          .join('<br>');
+      }
+    });
+  }
 }
 
 function styleSTN() {
@@ -601,16 +689,50 @@ function displayButtonBPTF() {
   div.appendChild(btn);
 }
 
+function displayButtonMCO() {
+  injectSTNStyles();
+  const div = document.querySelector(
+    'body > div.d-flex.flex-column > div.bg-dark > div.m-auto > div > div ' +
+    '> div.col-sm-8.col-md-7.col-lg-8 > div.row.g-0 > div:nth-child(1) ' +
+    '> div.px-3.px-sm-0.pb-2.d-flex.justify-content-between.justify-content-sm-start'
+  );
+  if (!div) return;
+  if (div.querySelector('#mco-link')) return;
+
+  function getMCOUrl() {
+    const { name: baseName, effectName } = getPageItem(); // MCO uses "unusual" in the URL path instead of numeric quality
+    return format2MCO(effectName, 'unusual', baseName);
+  }
+
+  const btn = document.createElement('a');
+  btn.id        = 'mco-link';
+  btn.className = 'bptf-mt-btn ms-sm-2';
+  btn.href      = getMCOUrl();
+  btn.target    = '_blank';
+
+  const icon = document.createElement('img');
+  icon.src = 'https://external-content.duckduckgo.com/ip3/mannco.store.ico';
+
+  const label = document.createElement('span');
+  label.textContent = 'Open on MCO';
+
+  btn.appendChild(icon);
+  btn.appendChild(label);
+  div.appendChild(btn);
+}
+
 // Wait for the page to fully settle (STN is a SPA-ish page)
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     displayButtonBPTF();
+    displayButtonMCO();
     styleSTN();
     styleSellBlock();
     styleBuyBlock();
   });
 } else {
   displayButtonBPTF();
+  displayButtonMCO();
   styleSTN();
   styleSellBlock();
   styleBuyBlock();
