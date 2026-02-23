@@ -1,0 +1,71 @@
+{
+  "manifest_version": 3,
+  "name": "BPTF Multi-tool",
+  "version": "4.0.1",
+  "description": "QOL Features for TF2 trading! Adds navigation buttons, price box links, and wiki pages across backpack.tf, stntrading.eu, scrap.tf and Steam.",
+  "author": "football.2014",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "BPTF Multi-tool"
+  },
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://backpack.tf/*",
+    "https://stntrading.eu/*",
+    "https://scrap.tf/*",
+    "https://steamcommunity.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://backpack.tf/*"],
+      "js": ["content/storage.js", "content/utils.js", "content/bptf.js"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": ["https://stntrading.eu/item/tf2/Unusual*"],
+      "js": ["content/token-bridge.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://stntrading.eu/item/tf2/Unusual*"],
+      "js": ["content/utils.js", "content/stn.js"],
+      "run_at": "document_end",
+      "world": "MAIN"
+    },
+    {
+      "matches": ["https://scrap.tf/inventory", "https://scrap.tf/auctions/*"],
+      "js": ["content/storage.js", "content/utils.js", "content/scraptf.js"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": [
+        "https://steamcommunity.com/id/*/inventory/",
+        "https://steamcommunity.com/profiles/*/inventory/"
+      ],
+      "js": ["content/token-bridge.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://steamcommunity.com/id/*/inventory/",
+        "https://steamcommunity.com/profiles/*/inventory/"
+      ],
+      "js": ["content/utils.js", "content/steam.js"],
+      "run_at": "document_end",
+      "world": "MAIN"
+    }
+  ]
+}

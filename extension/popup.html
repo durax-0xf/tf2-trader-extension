@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BPTF Multi-tool</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="header">
+    <img src="icons/icon48.png" alt="icon" class="header-icon" />
+    <span class="header-title">BPTF Multi-tool</span>
+    <span class="header-version">v4.0.1</span>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="tab1">Tab 1 — Tools</button>
+    <button class="tab-btn" data-tab="tab2">Tab 2 — Links</button>
+    <button class="tab-btn" data-tab="tab3">Tab 3 — Settings</button>
+  </div>
+
+  <!-- Tab 1: Tools / quick access -->
+  <div id="tab1" class="tab-panel active">
+    <p class="section-label">Quick item lookup</p>
+
+    <div class="form-group">
+      <label for="item-name">Item name</label>
+      <input type="text" id="item-name" placeholder="e.g. Burning Flames Team Captain" />
+    </div>
+
+    <div class="form-group">
+      <label for="effect-id">Effect ID</label>
+      <input type="number" id="effect-id" placeholder="e.g. 13" />
+    </div>
+
+    <div class="form-group">
+      <label for="def-index">Def index</label>
+      <input type="number" id="def-index" placeholder="e.g. 378" />
+    </div>
+
+    <div class="btn-row">
+      <button class="action-btn" id="open-bptf">Open BPTF</button>
+      <button class="action-btn" id="open-stn">Open STN</button>
+      <button class="action-btn" id="open-mptf">Open MPTF</button>
+    </div>
+
+    <p class="hint" id="lookup-hint"></p>
+  </div>
+
+  <!-- Tab 2: Links / resources -->
+  <div id="tab2" class="tab-panel">
+    <p class="section-label">Useful resources</p>
+
+    <div class="link-list">
+      <a href="https://backpack.tf" target="_blank" class="resource-link">
+        <img src="https://external-content.duckduckgo.com/ip3/backpack.tf.ico" alt="" />
+        backpack.tf
+      </a>
+      <a href="https://stntrading.eu" target="_blank" class="resource-link">
+        <img src="https://external-content.duckduckgo.com/ip3/stntrading.eu.ico" alt="" />
+        stntrading.eu
+      </a>
+      <a href="https://marketplace.tf" target="_blank" class="resource-link">
+        <img src="https://external-content.duckduckgo.com/ip3/marketplace.tf.ico" alt="" />
+        marketplace.tf
+      </a>
+      <a href="https://scrap.tf" target="_blank" class="resource-link">
+        <img src="https://external-content.duckduckgo.com/ip3/scrap.tf.ico" alt="" />
+        scrap.tf
+      </a>
+      <a href="https://wiki.teamfortress.com/wiki/TF2_Wiki" target="_blank" class="resource-link">
+        <img src="https://external-content.duckduckgo.com/ip3/wiki.teamfortress.com.ico" alt="" />
+        TF2 Wiki
+      </a>
+    </div>
+
+    <p class="section-label" style="margin-top:14px;">About</p>
+    <p class="about-text">
+      Adds cross-site navigation buttons, wiki links, and quality-of-life features
+      across backpack.tf, stntrading.eu, scrap.tf and your Steam inventory.
+    </p>
+    <p class="about-text">
+      Author: <strong>football.2014</strong>
+    </p>
+  </div>
+
+  <div id="tab3" class="tab-panel">
+        <p class="section-label">Settings</p>
+        <p>If you want to see live prices from backpack.tf, set your token!</p>
+
+        <div class="form-group">
+            <label for="bptf-token">Backpack.tf token</label>
+            <input type="text" id="bptf-token" placeholder="Your backpack.tf token" />
+        </div>
+        <button class="action-btn" id="save-token">Save token</button>
+        <p class="hint" id="save-hint"></p>
+        <div class="hint">
+            <a href="https://next.backpack.tf/account/api-access" target="_blank">Get your backpack.tf token →</a>
+            <i>Use the access token, NOT the API key</i>
+        </div>
+        
+        
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
