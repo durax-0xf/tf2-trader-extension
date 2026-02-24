@@ -270,6 +270,25 @@ function initGutterToggle() {
   });
 }
 
+// ── Snapshots Button ───────────────────────────────────────────────
+function displayButtonSnapshots() {
+  const well = document.querySelector("#page-content > div.stats-panel > div > div.well.well-sm");
+  if (!well) return;
+  const {name, effectName} = getPageItem();
+
+  const btn = document.createElement('button');
+  btn.textContent = 'Show Price Snapshots';
+  btn.style.cssText = [
+    'padding:2px 10px', 'border-radius:4px', 'border:none',
+    'cursor:pointer', 'background:#2a475e', 'color:#c6d4df', 'font-size:12px',
+    'vertical-align:middle', 'font-weight:normal', 'letter-spacing:.3px'
+  ].join(';');
+  btn.addEventListener('click', () => {
+    window.open(`https://next.backpack.tf/classifieds/snapshots/${effectName}%20${name}`, '_blank');
+  });
+  well.appendChild(btn);
+}
+
 // ── Entry point ───────────────────────────────────────────────
 
 function init() {
@@ -283,6 +302,7 @@ function init() {
     displayButtonsPrevNext();
     displayButtonMCO();
     initGutterToggle();
+    displayButtonSnapshots();
   }
 }
 
