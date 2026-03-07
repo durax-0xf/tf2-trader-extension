@@ -52,14 +52,22 @@
     },
     {
       "matches": [
+        "https://steamcommunity.com/id/*",
+        "https://steamcommunity.com/id/*/",
+        "https://steamcommunity.com/profiles/*",
+        "https://steamcommunity.com/profiles/*/",
         "https://steamcommunity.com/id/*/inventory/",
         "https://steamcommunity.com/profiles/*/inventory/"
       ],
-      "js": ["content/token-bridge.js"],
+      "js": ["content/token-bridge.js", "content/fetch-bridge.js"],
       "run_at": "document_start"
     },
     {
       "matches": [
+        "https://steamcommunity.com/id/*",
+        "https://steamcommunity.com/id/*/",
+        "https://steamcommunity.com/profiles/*",
+        "https://steamcommunity.com/profiles/*/",
         "https://steamcommunity.com/id/*/inventory/",
         "https://steamcommunity.com/profiles/*/inventory/"
       ],

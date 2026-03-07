@@ -271,6 +271,7 @@ function initGutterToggle() {
 }
 
 // ── Snapshots Button ───────────────────────────────────────────────
+
 function displayButtonSnapshots() {
   const well = document.querySelector("#page-content > div.stats-panel > div > div.well.well-sm");
   if (!well) return;

@@ -45,3 +45,24 @@ document.addEventListener('__bptf_fetch_request', async e => {
     detail: { id, data, error }
   }));
 });
+
+// Generic fetch bridge for external resources (e.g., effects.json)
+document.addEventListener('__generic_fetch_request', async e => {
+  const { id, url } = e.detail || {};
+  if (!id || !url) return;
+
+  let data  = null;
+  let error = null;
+
+  try {
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    data = await resp.json();
+  } catch (e) {
+    error = e.message;
+  }
+
+  document.dispatchEvent(new CustomEvent('__generic_fetch_result', {
+    detail: { id, data, error }
+  }));
+});
